@@ -1,16 +1,12 @@
 defmodule Phiriq.Map do
   @moduledoc """
-  This modules works on the Phiriq maps.  It uses tuples for performance
-  reasons, since acessing specific positions on Elixir lists have a O(n)
-  complexity.
-
-  TODO: Maybe use :ets with (x, y) pairs on the future if needed.
+  This module works with the game map.
   """
 
   @typedoc """
   A value used by the game map to distinguish tiles.
   """
-  @type value :: integer()
+  @type tile :: %Phiriq.Tile{}
 
   @typedoc """
   Represents a {x, y} integer coordinate.
@@ -20,34 +16,34 @@ defmodule Phiriq.Map do
   @typedoc """
   Represents the game map.
   """
-  @type gmap :: {{value()}}
+  @type gmap :: %{coordinate() => tile()}
 
   @doc """
   Builds an empty X per Y map filled of zeros.
   """
   @spec build(coordinate()) :: gmap()
-  def build({x, y}) do
-    Enum.map(1..y, fn _ ->
-      Enum.reduce(1..x, {}, fn _, acc ->
-        Tuple.append(acc, 0)
-      end)
-    end)
-    |> List.to_tuple()
+  def build({x_size, y_size}) do
+    # TODO: Figure out how to implement this efficiently,
+    # TODO: Chunking
+    for y <- 0..(y_size - 1),
+        x <- 0..(x_size - 1),
+        into: %{},
+        do: {{x, y}, %Phiriq.Tile{id: 0}}
   end
 
   @doc """
   Gets an element at a specific x,y coordinate.
   """
-  @spec at(gmap(), coordinate()) :: value()
-  def at(map, {x, y}) do
-    map |> elem(y) |> elem(x)
+  @spec at(gmap(), coordinate()) :: tile()
+  def at(map, coords) do
+    Map.get(map, coords)
   end
 
-  @spec update(gmap(), coordinate(), value()) :: gmap()
-  def update(map, {x, y}, value) do
-    updated = map |> elem(y) |> put_elem(x, value)
-
-    Tuple.delete_at(map, y)
-    |> Tuple.insert_at(y, updated)
+  @doc """
+  Updates a given a point on the map
+  """
+  @spec update(gmap(), coordinate(), tile()) :: gmap()
+  def update(map, coord, value) do
+    Map.put(map, coord, value)
   end
 end
