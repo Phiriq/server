@@ -42,7 +42,7 @@ jobs:
       run: mix format --check-formatted
 
     - name: Run credo
-      run: mix credo --strict
+      run: mix credo
 
     - name: Retrieve dialyzer PLT cache
       uses: actions/cache@v1
