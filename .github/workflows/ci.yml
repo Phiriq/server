@@ -63,3 +63,14 @@ jobs:
     - name: Run Tests
       run: mix test
 
+    - name: Build project documentation
+      if: github.event_name == 'push'
+      run: mix docs
+
+    - name: Deploy project documentation to GitHub pages
+      if: github.event_name == 'push'
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: doc
+
